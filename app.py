@@ -260,10 +260,22 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # Initialize WebDriver
 #service = Service(r'C:\Users\nancy\.wdm\drivers\chromedriver\win32\109.0.5414.74\chromedriver.exe')
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")  # Enable headless mode
-options.add_argument("--start-maximized")
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+
+# Configure Chrome options
+options = Options()
+options.add_argument("--headless")  # Run in headless mode
+options.add_argument("--no-sandbox")  # Bypass OS security model
+options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
+options.add_argument("--disable-gpu")  # Disable GPU hardware acceleration
+options.add_argument("--window-size=1920x1080")  # Set window size
+
+# Initialize the Chrome driver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
 
 
 if st.button("Search"):
