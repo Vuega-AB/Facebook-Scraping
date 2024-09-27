@@ -275,16 +275,26 @@ options.add_argument("--disable-gpu")  # Disable GPU hardware acceleration
 options.add_argument("--window-size=1920x1080")  # Set screen resolution size
 options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
 
-desired_capabilities = {
-    'browserName': 'chrome',
-    'browserstack.local': 'false',
-    'browserstack.user': 'Nancy Hisham',
-    'browserstack.key': 'RgdM2svyK6XWRnqTUTnN'
-}
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+# Define your capabilities
+capabilities = DesiredCapabilities.CHROME.copy()
+capabilities['browserstack.user'] = 'Nancy Hisham'  # Replace with your BrowserStack username
+capabilities['browserstack.key'] = 'RgdM2svyK6XWRnqTUTnN'  # Replace with your BrowserStack access key
+capabilities['browserstack.local'] = 'true'  # Enable local testing
+
+# Create the WebDriver instance
 driver = webdriver.Remote(
     command_executor='http://hub-cloud.browserstack.com/wd/hub',
-    desired_capabilities=desired_capabilities)
+    options=webdriver.ChromeOptions(),
+    desired_capabilities=capabilities
+)
+
+# Access your local application
+local_url = 'http://nancyhisham_2hqgao.browserstack.com'
+driver.get(local_url)
 
 if st.button("Search"):
     if query:
