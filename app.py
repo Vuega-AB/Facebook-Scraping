@@ -275,12 +275,16 @@ options.add_argument("--disable-gpu")  # Disable GPU hardware acceleration
 options.add_argument("--window-size=1920x1080")  # Set screen resolution size
 options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
 
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+desired_capabilities = {
+    'browserName': 'chrome',
+    'browserstack.local': 'false',
+    'browserstack.user': 'Nancy Hisham',
+    'browserstack.key': 'RgdM2svyK6XWRnqTUTnN'
+}
 
-# Connect to the remote WebDriver
 driver = webdriver.Remote(
-    command_executor='http://<remote_host>:<port>/wd/hub',
-    desired_capabilities=DesiredCapabilities.CHROME)
+    command_executor='http://hub-cloud.browserstack.com/wd/hub',
+    desired_capabilities=desired_capabilities)
 
 if st.button("Search"):
     if query:
