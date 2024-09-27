@@ -1,12 +1,11 @@
 import requests
 import streamlit as st
 import time
+from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 
 def google_search(query, api_key, search_engine_id):
     url = "https://www.googleapis.com/customsearch/v1"
@@ -19,12 +18,16 @@ def google_search(query, api_key, search_engine_id):
     return response.json()
 
 # Replace these with your actual API key and Search Engine ID
-api_key = 'YOUR_API_KEY'  # Replace with your actual API key
-search_engine_id = 'YOUR_SEARCH_ENGINE_ID'  # Replace with your actual Search Engine ID
+api_key = 'AIzaSyAcEhygRJDoBeCBePgPxTxlwWGSXmnGTwo'
+search_engine_id = '70fd339e45a0e4b2c'
 
 # Streamlit app layout
 st.title("Google Custom Search")
 query = st.text_input("Enter your search query:")
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def navigate_to_facebook_main_page(driver):
     # Define the class names used for the anchor tag
@@ -60,6 +63,7 @@ def navigate_to_facebook_main_page(driver):
     except Exception as e:
         print(f"Error finding the store link in the second class: {e}")
         return None
+
 
 def close_login_window(driver):
     try:
@@ -157,6 +161,7 @@ def check_and_close_login_window(driver):
     if retry_count >= max_retries:
         print("Login window appeared multiple times, tried closing it.")
 
+
 def load_reviews(file_name):
     with open(file_name, 'r', encoding='utf-8') as file:
         lines = file.readlines()
@@ -193,9 +198,9 @@ def load_reviews(file_name):
             is_recommendation = False  # Set flag to False for non-recommendation
             
         elif current_review:
-            current_review += " " + line  # Continue building the current review
+            current_review += " " + line  # Continue the current review
 
-    # After the loop, save the last review
+    # Final check to add the last review
     if current_review:
         if is_recommendation:
             recommends.append(current_review.strip())
@@ -204,50 +209,125 @@ def load_reviews(file_name):
 
     return recommends, does_not_recommend
 
-def main():
-    if st.button("Search"):
-        if query:
-            # Perform the Google search
-            results = google_search(query, api_key, search_engine_id)
-            if 'items' in results:
-                st.write("Search Results:")
-                for item in results['items']:
-                    st.write(f"- {item['title']}: {item['link']}")
+def fetch_and_save_reviews(driver, url, before_cleaning_file):
+    close_login_window(driver)
 
-                # Initialize Selenium WebDriver
-                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-                
-                for item in results['items']:
-                    if 'facebook.com' in item['link']:
-                        # Navigate to the Facebook page
-                        store_url = item['link']
-                        print(f"Navigating to: {store_url}")
-                        driver.get(store_url)
-                        close_login_window(driver)  # Close login window if it appears
-                        navigate_to_facebook_main_page(driver)  # Navigate to the Facebook main page
-                        time.sleep(5)  # Allow time for the page to load
-                        extract_and_print_link(driver)  # Extract and print the reviews link
+    time.sleep(5)
+    driver.get(url)
 
-                        # Here you can call the function to remove comments
-                        file_name = 'path/to/your/reviews.txt'  # Replace with the path to your reviews file
-                        remove_comments_between_reviews(file_name)
+    check_and_close_login_window(driver)
 
-                        recommends, does_not_recommend = load_reviews(file_name)
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'xdj266r')]"))
+    )
 
-                        # Display the results in the Streamlit app
-                        st.write("Recommendations:")
-                        for review in recommends:
-                            st.write(f"- {review}")
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    reviews_list = []
+    review_count = 0
 
-                        st.write("Does Not Recommend:")
-                        for review in does_not_recommend:
-                            st.write(f"- {review}")
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(3)
+        check_and_close_login_window(driver)
 
-                        break  # Stop after processing the first Facebook link
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height or review_count >= 20:
+            break
+        last_height = new_height
+
+        reviews = driver.find_elements(By.XPATH, "//div[contains(@class, 'xdj266r')]")
+        for review in reviews:
+            cleaned_review = review.text.strip()
+            if (
+                cleaned_review and 
+                cleaned_review not in reviews_list and
+                ("recommends" in cleaned_review or "doesn't recommend" in cleaned_review)
+            ):
+                reviews_list.append(cleaned_review)
+                review_count += 1
+                if review_count >= 20:
+                    break
+
+    print(f"Number of unique reviews found: {len(reviews_list)}")
+
+    with open(before_cleaning_file, 'w', encoding='utf-8') as file:
+        for review in reviews_list:
+            file.write(review + '\n')
+
+    print(f"Reviews before cleaning saved to {before_cleaning_file}")
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Enable headless mode
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--start-maximized")
+
+try:
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+if st.button("Search"):
+    if query:
+        results = google_search(query, api_key, search_engine_id)
+
+        # Display results and select one link
+        if 'items' in results and len(results['items']) > 0:
+            first_item = results['items'][0]  # Get the first link
+            st.write(f"**Title:** {first_item['title']}")
+            st.write(f"Link: {first_item['link']}")  # Print the raw link
+            
+            # Navigate to the initial link
+            driver.get(first_item['link'])
+
+            # Close any login dialog
+            close_login_window(driver)  
+
+            # Navigate to the main Facebook page
+            main_page_url = navigate_to_facebook_main_page(driver)
+
+            if main_page_url:
+                # Call the extraction function and get the reviews link
+                reviews_link = extract_and_print_link(driver)
+
+                if reviews_link:
+                    before_cleaning_file = 'reviews_before_cleaning.txt'
+                    fetch_and_save_reviews(driver, reviews_link, before_cleaning_file)
+                    driver.quit()
+
+                    remove_comments_between_reviews(before_cleaning_file)
+                    file_name = 'reviews_after_cleaning.txt'
+                    recommends, does_not_recommend = load_reviews(file_name)
+
+                    st.title("Reviews")
+
+                    if recommends or does_not_recommend:
+                        st.subheader("Recommendations")
+                        if recommends:
+                            for review in recommends:
+                                st.write(f"- {review}")
+                        else:
+                            st.write("No recommendations found.")
+
+                        st.subheader("Doesn't Recommend")
+                        if does_not_recommend:
+                            for review in does_not_recommend:
+                                st.write(f"- {review}")
+                        else:
+                            st.write("No 'Doesn't Recommend' reviews found.")
+                    else:
+                        st.write("No reviews found.")
                 else:
-                    st.write("No Facebook links found in the search results.")
-                
-                driver.quit()  # Close the driver at the end
+                    st.write("No reviews found.")
+            else:
+                st.write("Main Facebook page link not found.")
+        else:
+            st.write("No results found.")
+    else:
+        st.write("Please enter a search query.")
 
-if __name__ == "__main__":
-    main()
+driver.quit()
