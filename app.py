@@ -265,15 +265,17 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
+
 # Configure Chrome options
 options = Options()
 options.add_argument("--headless")  # Run in headless mode
 options.add_argument("--no-sandbox")  # Bypass OS security model
 options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
 options.add_argument("--disable-gpu")  # Disable GPU hardware acceleration
-options.add_argument("--window-size=1920x1080")  # Set window size
+options.add_argument("--window-size=1920x1080")  # Set screen resolution size
+options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
 
-# Initialize the Chrome driver
+# Initialize Chrome WebDriver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 
