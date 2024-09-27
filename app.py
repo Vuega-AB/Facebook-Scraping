@@ -262,26 +262,28 @@ from selenium.webdriver.chrome.options import Options
 
 # Create Chrome options
 chrome_options = Options()
-# Add any options you need here (like headless mode, etc.)
+chrome_options.add_argument("--no-sandbox")  # Example argument, modify as needed
 
-# Define your capabilities
-capabilities = {
-    'browserstack.user': 'Nancy Hisham',  # Replace with your BrowserStack username
-    'browserstack.key': 'RgdM2svyK6XWRnqTUTnN',  # Replace with your BrowserStack access key
-    'browserstack.local': 'true',  # Enable local testing
-    'browserName': 'Chrome',  # Specify the browser name
-}
+# Add BrowserStack capabilities directly into chrome_options
+chrome_options.set_capability('browserstack.user', 'Nancy Hisham')  # Replace with your BrowserStack username
+chrome_options.set_capability('browserstack.key', 'RgdM2svyK6XWRnqTUTnN')  # Replace with your BrowserStack access key
+chrome_options.set_capability('browserstack.local', 'true')  # Enable local testing
+chrome_options.set_capability('browserName', 'Chrome')  # Specify the browser name
 
 # Create the WebDriver instance
 driver = webdriver.Remote(
     command_executor='http://hub-cloud.browserstack.com/wd/hub',
-    options=chrome_options,
-    desired_capabilities=capabilities  # Now using this instead of 'desired_capabilities'
+    options=chrome_options  # Only passing options now
 )
 
 # Access your local application
 local_url = 'http://nancyhisham_2hqgao.browserstack.com'
 driver.get(local_url)
+
+# Your scraping or testing code here
+
+# Quit the driver
+driver.quit()
 
 
 if st.button("Search"):
