@@ -262,12 +262,11 @@ from selenium.webdriver.chrome.options import Options
 
 # Create Chrome options
 chrome_options = Options()
-chrome_options.add_argument("--no-sandbox")  # Example argument, modify as needed
+chrome_options.add_argument("--no-sandbox")  # Modify as needed
 
-# Add BrowserStack capabilities
-chrome_options.set_capability('browserstack.user', 'nancyhisham_2hQgao')  # Replace with your BrowserStack username
-chrome_options.set_capability('browserstack.key', 'RgdM2svyK6XWRnqTUTnN')  # Replace with your BrowserStack access key
-chrome_options.set_capability('browserstack.local', 'true')  # Enable local testing
+# Add BrowserStack capabilities with the new credentials
+chrome_options.set_capability('browserstack.user', 'facebookscraping')  # New username
+chrome_options.set_capability('browserstack.key', 'Ky34FKWbyXaejhL71rey')  # New access key
 chrome_options.set_capability('browserName', 'Chrome')  # Specify the browser name
 
 # Create the WebDriver instance
@@ -275,10 +274,9 @@ driver = webdriver.Remote(
     command_executor='http://hub-cloud.browserstack.com/wd/hub',
     options=chrome_options
 )
-
-# Access your local application
-local_url = 'http://nancyhisham_2hqgao.browserstack.com'
-driver.get(local_url)
+# # Access your local application
+# local_url = 'http://nancyhisham_2hqgao.browserstack.com'
+# driver.get(local_url)
 
 
 if st.button("Search"):
