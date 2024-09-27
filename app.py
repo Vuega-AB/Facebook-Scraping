@@ -336,5 +336,3 @@ if st.button("Search"):
             st.write("No results found.")
     else:
         st.write("Please enter a search query.")
-
-driver.quit()
