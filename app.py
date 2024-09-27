@@ -266,10 +266,18 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--start-maximized")
 
+driver = None  # Initialize driver variable
+
 try:
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # Your scraping code goes here
+
 except Exception as e:
-    print(f"An error occurred: {e}")
+    print(f"An error occurred while initializing the driver: {e}")
+
+finally:
+    if driver is not None:  # Check if the driver was successfully created
+        driver.quit()  # Ensure that driver is quit only if it was created
 
 if st.button("Search"):
     if query:
