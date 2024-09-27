@@ -265,7 +265,7 @@ chrome_options = Options()
 chrome_options.add_argument("--no-sandbox")  # Example argument, modify as needed
 
 # Add BrowserStack capabilities directly into chrome_options
-chrome_options.set_capability('browserstack.user', 'Nancy Hisham')  # Replace with your BrowserStack username
+chrome_options.set_capability('browserstack.user', 'nancyhisham_2hQgao')  # Replace with your BrowserStack username
 chrome_options.set_capability('browserstack.key', 'RgdM2svyK6XWRnqTUTnN')  # Replace with your BrowserStack access key
 chrome_options.set_capability('browserstack.local', 'true')  # Enable local testing
 chrome_options.set_capability('browserName', 'Chrome')  # Specify the browser name
