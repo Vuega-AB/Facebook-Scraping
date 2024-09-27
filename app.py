@@ -256,45 +256,33 @@ def fetch_and_save_reviews(driver, url, before_cleaning_file):
 
     print(f"Reviews before cleaning saved to {before_cleaning_file}")
 
-from webdriver_manager.chrome import ChromeDriverManager
-
-# Initialize WebDriver
-#service = Service(r'C:\Users\nancy\.wdm\drivers\chromedriver\win32\109.0.5414.74\chromedriver.exe')
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
-
-# Configure Chrome options
-options = Options()
-options.add_argument("--headless")  # Run in headless mode
-options.add_argument("--no-sandbox")  # Bypass OS security model
-options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
-options.add_argument("--disable-gpu")  # Disable GPU hardware acceleration
-options.add_argument("--window-size=1920x1080")  # Set screen resolution size
-options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
-
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+# Create Chrome options
+chrome_options = Options()
+# Add any options you need here (like headless mode, etc.)
 
 # Define your capabilities
-capabilities = DesiredCapabilities.CHROME.copy()
-capabilities['browserstack.user'] = 'Nancy Hisham'  # Replace with your BrowserStack username
-capabilities['browserstack.key'] = 'RgdM2svyK6XWRnqTUTnN'  # Replace with your BrowserStack access key
-capabilities['browserstack.local'] = 'true'  # Enable local testing
+capabilities = {
+    'browserstack.user': 'Nancy Hisham',  # Replace with your BrowserStack username
+    'browserstack.key': 'RgdM2svyK6XWRnqTUTnN',  # Replace with your BrowserStack access key
+    'browserstack.local': 'true',  # Enable local testing
+    'browserName': 'Chrome',  # Specify the browser name
+}
 
 # Create the WebDriver instance
 driver = webdriver.Remote(
     command_executor='http://hub-cloud.browserstack.com/wd/hub',
-    options=webdriver.ChromeOptions(),
-    desired_capabilities=capabilities
+    options=chrome_options,
+    desired_capabilities=capabilities  # Now using this instead of 'desired_capabilities'
 )
 
 # Access your local application
 local_url = 'http://nancyhisham_2hqgao.browserstack.com'
 driver.get(local_url)
+
 
 if st.button("Search"):
     if query:
